@@ -1,0 +1,52 @@
+version: '3'
+services:
+  mysql:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: moviefy
+    ports:
+      - "3306:3306"
+    expose:
+      - 3306
+    container_name: moviefy-mysql
+    networks:
+      - moviefy-network
+  backend:
+    build:
+      context: ./backend
+    container_name: moviefy-backend
+    restart: always
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+      - /var/www/vendor
+    command: bash -c "php artisan migrate:refresh && php artisan serve --host 0.0.0.0"
+    ports:
+      - "8000:8000"
+    expose: 
+      - 8000
+    depends_on: 
+      - mysql
+    networks:
+      - moviefy-network
+  frontend:
+    build:
+      context: ./frontend
+    container_name: moviefy-frontend
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./frontend:/usr/app
+      - /usr/app/node_modules
+    depends_on: 
+      - backend
+    networks:
+      - moviefy-network
+networks:
+  moviefy-network:
+    driver: bridge
