@@ -1,4 +1,4 @@
-# Moviefy app challenge
+# Moviefy
 
 ## Project
 
